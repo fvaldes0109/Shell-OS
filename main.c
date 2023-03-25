@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include "./src/runner.c"
+#include "runner.h"
 #include "constants.h"
 
 int main() {

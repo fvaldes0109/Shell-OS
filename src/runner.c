@@ -4,13 +4,9 @@
 
 #include "stringshelpers.h"
 #include "constants.h"
-#include "./commands.c"
+#include "commands.h"
 
 char workingDir[OUTPUT_MAX_LENGTH];
-
-void pwd(char[], char[]);
-void ls(char[], char[]);
-
 
 void init() {
 
