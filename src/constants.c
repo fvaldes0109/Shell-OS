@@ -1,2 +1,0 @@
-#define INPUT_MAX_LENGTH 1000
-#define INPUT_MAX_WORDS 100

@@ -1,8 +1,11 @@
 #include <stdio.h>
+#include <string.h>
+#include <ctype.h>
 
-#include "../constants.c"
+#include "stringshelpers.h"
+#include "constants.h"
 
-void splitInput(char input[], char words[INPUT_MAX_WORDS][INPUT_MAX_LENGTH]) {
+int splitInput(char input[], char words[INPUT_MAX_WORDS][INPUT_MAX_LENGTH]) {
 
     int len = strlen(input);
 
@@ -40,10 +43,25 @@ void splitInput(char input[], char words[INPUT_MAX_WORDS][INPUT_MAX_LENGTH]) {
             num_words++; // Incrementar el contador de palabras almacenadas
         }
     }
+
+    return num_words;
+}
+
+// Función para comparar dos cadenas de caracteres ignorando mayúsculas y minúsculas
+int strcmp_nocap(const void *a, const void *b) {
     
-    // Imprimir las palabras almacenadas en el arreglo de strings
-    // printf("Las palabras en la cadena son:\n");
-    // for (i = 0; i < num_words; i++) {
-    //     printf("%s\n", words[i]);
-    // }
+    char *str1 = *(char **)a;
+    char *str2 = *(char **)b;
+    char c1, c2;
+
+    while (*str1 && *str2) {
+        c1 = tolower(*str1);
+        c2 = tolower(*str2);
+        if (c1 != c2) {
+            return c1 - c2;
+        }
+        str1++;
+        str2++;
+    }
+    return 0;
 }

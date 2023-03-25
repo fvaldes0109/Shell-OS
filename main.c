@@ -1,9 +1,11 @@
 #include <stdio.h>
 
 #include "./src/runner.c"
-#include "./src/constants.c"
+#include "constants.h"
 
 int main() {
+
+    init();
 
     while (1) {
         
