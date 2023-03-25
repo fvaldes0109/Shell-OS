@@ -9,7 +9,7 @@ int main() {
 
     while (1) {
         
-        printf("mi-consola $ ");
+        printf("\x1b[33mmi-consola\x1b[0m $ ");
 
         char input[INPUT_MAX_LENGTH];
         fgets(input, INPUT_MAX_LENGTH, stdin);

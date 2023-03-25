@@ -54,6 +54,10 @@ int strcmp_nocap(const void *a, const void *b) {
     char *str2 = *(char **)b;
     char c1, c2;
 
+    // Saltarse los colores
+    str1 += 4;
+    str2 += 4;
+
     while (*str1 && *str2) {
         c1 = tolower(*str1);
         c2 = tolower(*str2);
