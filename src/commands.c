@@ -8,6 +8,9 @@
 #include "stringshelpers.h"
 #include "constants.h"
 
+int _change_working_dir(char fullRoute[], char workingDir[]);
+
+
 void pwd(char output[], char workingDir[]) {
 
     strcpy(output, workingDir);
@@ -78,39 +81,62 @@ void ls(char output[], char workingDir[]) {
     }
 }
 
-void cd(char newRoute[], char workingDir[]) {
+void cd(char output[], char newRoute[], char workingDir[]) {
 
-    char **folders = malloc(FOLDER_DEPTH_MAX * sizeof(char *));
-    int num_folders = strsplit(newRoute, "/", &folders);
+    // Keep a copy of workingDir
+    char original[strlen(workingDir)];
+    strcpy(original, workingDir);
 
-    for (int i = 0; i < num_folders; i++) {
-
-        char *newFolder = folders[i];
-
-        char newWorkingDir[FILEPATH_MAX];
-        sprintf(newWorkingDir, "%s/%s", workingDir, newFolder);
-
-        DIR *dir;
-        dir = opendir(newWorkingDir);
-
-        // Handle . and .. cases
-        if (strcmp(newFolder, ".") == 0) continue;
-        else if (strcmp(newFolder, "..") == 0) {
-
-            int i = strlen(workingDir) - 1;
-            while (workingDir[i] != '/') i--;
-            workingDir[i] = '\0';
-            printf("Cambiado al directorio %s\n", workingDir);
+    if (newRoute[0] == '/') {
+        if(_change_working_dir(newRoute, workingDir) != 0) {
+            sprintf(output, "La ruta \"%s\" no existe", newRoute);
+            return;
         }
-        else if (dir) {
+    }
 
-            strcpy(workingDir, newWorkingDir);
-            printf("Cambiado al directorio %s\n", workingDir);
-            closedir(dir);
-        }
-        else {
+    else {
+        char **folders = malloc(FOLDER_DEPTH_MAX * sizeof(char *));
+        int num_folders = strsplit(newRoute, "/", &folders);
 
-            printf("El directorio \"%s\" no existe\n", newFolder);
+        for (int i = 0; i < num_folders; i++) {
+
+            char *newFolder = folders[i];
+
+            char newWorkingDir[FILEPATH_MAX];
+            sprintf(newWorkingDir, "%s/%s", workingDir, newFolder);
+
+            // Handle . and .. cases
+            if (strcmp(newFolder, ".") == 0) continue;
+            else if (strcmp(newFolder, "..") == 0) {
+
+                int i = strlen(workingDir) - 1;
+                while (workingDir[i] != '/') i--;
+                workingDir[i] = '\0';
+            }
+            else if (_change_working_dir(newWorkingDir, workingDir) != 0) {
+
+                sprintf(output, "El directorio \"%s\" no existe", newWorkingDir);
+                strcpy(workingDir, original);
+                return;
+            }
         }
+    }
+
+    sprintf(output, "Cambiado al directorio %s", workingDir);
+}
+
+int _change_working_dir(char fullRoute[], char workingDir[]) {
+
+    DIR *dir;
+    dir = opendir(fullRoute);
+
+    if (dir) {
+
+        strcpy(workingDir, fullRoute);
+        closedir(dir);
+        return 0;
+    }
+    else {
+        return 1;
     }
 }

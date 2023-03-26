@@ -27,18 +27,22 @@ void run(char command[]) {
         printf("%s\n", output);
     }
     
-    if (strcmp(words[0], "ls") == 0) {
+    else if (strcmp(words[0], "ls") == 0) {
 
         char output[OUTPUT_MAX_LENGTH] = "";
         ls(output, workingDir);
         printf("%s\n", output);
     }
 
-    if (strcmp(words[0], "cd") == 0) {
+    else if (strcmp(words[0], "cd") == 0) {
 
+        char output[OUTPUT_MAX_LENGTH] = "";
         if (input_words == 1) return;
-        cd(words[1], workingDir);
+        cd(output, words[1], workingDir);
+        printf("%s\n", output);
     }
+
+    else printf("Comando desconocido");
 }
 
 
