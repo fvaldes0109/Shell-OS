@@ -77,3 +77,40 @@ void ls(char output[], char workingDir[]) {
         if (i < num_words - 1) output[k++] = ' ';
     }
 }
+
+void cd(char newRoute[], char workingDir[]) {
+
+    char **folders = malloc(FOLDER_DEPTH_MAX * sizeof(char *));
+    int num_folders = strsplit(newRoute, "/", &folders);
+
+    for (int i = 0; i < num_folders; i++) {
+
+        char *newFolder = folders[i];
+
+        char newWorkingDir[FILEPATH_MAX];
+        sprintf(newWorkingDir, "%s/%s", workingDir, newFolder);
+
+        DIR *dir;
+        dir = opendir(newWorkingDir);
+
+        // Handle . and .. cases
+        if (strcmp(newFolder, ".") == 0) continue;
+        else if (strcmp(newFolder, "..") == 0) {
+
+            int i = strlen(workingDir) - 1;
+            while (workingDir[i] != '/') i--;
+            workingDir[i] = '\0';
+            printf("Cambiado al directorio %s\n", workingDir);
+        }
+        else if (dir) {
+
+            strcpy(workingDir, newWorkingDir);
+            printf("Cambiado al directorio %s\n", workingDir);
+            closedir(dir);
+        }
+        else {
+
+            printf("El directorio \"%s\" no existe\n", newFolder);
+        }
+    }
+}
