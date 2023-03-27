@@ -125,6 +125,17 @@ void cd(char output[], char newRoute[], char workingDir[]) {
     sprintf(output, "Cambiado al directorio %s", workingDir);
 }
 
+void history(char output[], char *history_arr[], int historyIndex) {
+
+    for (int i = 0; i < historyIndex; i++) {
+
+        char entry[INPUT_MAX_LENGTH];
+        sprintf(entry, "%d: %s", i + 1, history_arr[i]);
+        if (i < historyIndex - 1) strcat(entry, "\n");
+        strcat(output, entry);
+    }
+}
+
 int _change_working_dir(char fullRoute[], char workingDir[]) {
 
     DIR *dir;

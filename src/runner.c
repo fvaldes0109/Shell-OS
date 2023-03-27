@@ -7,42 +7,86 @@
 #include "constants.h"
 #include "commands.h"
 
+void _history_push(char command[], int updateFile);
+
+
 char workingDir[OUTPUT_MAX_LENGTH];
+char *history_arr[10];
+int historyIndex = 0;
 
 void init() {
 
     getcwd(workingDir, sizeof(workingDir));
+    
+    // Read history from file
+    FILE *file = fopen(".history", "r");
+    if (file) {
+
+        int i = 0;
+        char line[INPUT_MAX_LENGTH];
+        while (fgets(line, sizeof(line), file)) {
+            line[strlen(line) - 1] = '\0';
+            _history_push(line, 0);
+        }
+        fclose(file);
+    }
 }
 
 void run(char command[]) {
     
+    if (command[strlen(command) - 1] == '\n') command[strlen(command) - 1] = '\0';
+    if (command[0] != ' ' || strcmp(command, "again") != 0) _history_push(command, 1);
+
     char **words = malloc(INPUT_MAX_WORDS * sizeof(char *));
 
     int input_words = strsplit(command, " \t\n", &words);
+    char output[OUTPUT_MAX_LENGTH] = "";
 
     if (strcmp(words[0], "pwd") == 0) {
 
-        char output[OUTPUT_MAX_LENGTH] = "";
         pwd(output, workingDir);
-        printf("%s\n", output);
     }
-    
     else if (strcmp(words[0], "ls") == 0) {
 
-        char output[OUTPUT_MAX_LENGTH] = "";
         ls(output, workingDir);
-        printf("%s\n", output);
     }
-
     else if (strcmp(words[0], "cd") == 0) {
 
-        char output[OUTPUT_MAX_LENGTH] = "";
         if (input_words == 1) return;
         cd(output, words[1], workingDir);
-        printf("%s\n", output);
     }
+    else if (strcmp(words[0], "history") == 0) {
 
-    else printf("Comando desconocido");
+        history(output, history_arr, historyIndex);
+    }
+    else strcpy(output, "Comando desconocido");
+
+
+    printf("%s\n", output);
 }
 
+void _history_push(char command[], int updateFile) {
+    
+    if (historyIndex == 10) {
+        for (int i = 0; i < 9; i++) {
+            strcpy(history_arr[i], history_arr[i + 1]);
+        }
+    }
 
+    if (historyIndex == 10) historyIndex = 9;
+
+    history_arr[historyIndex] = malloc(strlen(command) + 1);
+    strcpy(history_arr[historyIndex], command);
+    historyIndex++;
+
+    if (updateFile == 1) {
+        FILE* file = fopen(".history", "w");
+
+        for (int i = 0; i < historyIndex; i++) {
+            fprintf(file, "%s\n", history_arr[i]);
+        }
+
+        fclose(file);
+    } 
+
+}
