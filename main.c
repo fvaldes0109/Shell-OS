@@ -25,12 +25,19 @@ int main() {
 
         int n_commands = parse_input(user_input, commands, flags);
 
+        char last_output[OUTPUT_MAX_LENGTH] = "";
+
         for (size_t i = 0; i < n_commands; i++) {
             
             char **words = malloc(INPUT_MAX_WORDS * sizeof(char *));
             int input_words = strsplit(commands[i], " \t\n", &words, 1);
-            char output[OUTPUT_MAX_LENGTH] = "";
-            run(words[0], words[1], output);
+
+            if (flags[i] == 0) {
+                run(words[0], words[1], last_output);
+            }
+            else if (flags[i] == -3) {
+                run(words[0], last_output, last_output);
+            }
 
             free(words);
         }
