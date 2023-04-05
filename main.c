@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 
 #include "runner.h"
@@ -15,6 +16,9 @@ int main() {
 
         char user_input[INPUT_MAX_LENGTH];
         fgets(user_input, INPUT_MAX_LENGTH, stdin);
+
+        if (user_input[strlen(user_input) - 1] == '\n') user_input[strlen(user_input) - 1] = '\0';
+        if (user_input[0] != ' ') history_push(user_input, 1);
 
         char* commands[INPUT_MAX_WORDS];
         int flags[INPUT_MAX_WORDS];

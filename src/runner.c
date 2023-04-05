@@ -7,7 +7,7 @@
 #include "constants.h"
 #include "commands.h"
 
-void _history_push(char command[], int updateFile);
+void history_push(char command[], int updateFile);
 
 
 char workingDir[OUTPUT_MAX_LENGTH];
@@ -25,18 +25,13 @@ void init() {
         char line[INPUT_MAX_LENGTH];
         while (fgets(line, sizeof(line), file)) {
             line[strlen(line) - 1] = '\0';
-            _history_push(line, 0);
+            history_push(line, 0);
         }
         fclose(file);
     }
 }
 
 void run(char *command, char *input, char *output) {
-    
-    if (command[strlen(command) - 1] == '\n') command[strlen(command) - 1] = '\0';
-    if (command[0] != ' ' || strcmp(command, "again") != 0) _history_push(command, 1); // Se rompio
-
-    
 
     if (strcmp(command, "pwd") == 0) {
 
@@ -55,14 +50,18 @@ void run(char *command, char *input, char *output) {
 
         history(output, history_arr, historyIndex);
     }
+    else if (strcmp(command, "echo") == 0) {
+
+        history(output, history_arr, historyIndex);
+    }
     else strcpy(output, "Comando desconocido");
 
 
     printf("%s\n", output);
 }
 
-void _history_push(char command[], int updateFile) {
-    
+void history_push(char command[], int updateFile) {
+
     if (historyIndex == 10) {
         for (int i = 0; i < 9; i++) {
             strcpy(history_arr[i], history_arr[i + 1]);
