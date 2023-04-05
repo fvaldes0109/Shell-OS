@@ -28,7 +28,7 @@ int main() {
         for (size_t i = 0; i < n_commands; i++) {
             
             char **words = malloc(INPUT_MAX_WORDS * sizeof(char *));
-            int input_words = strsplit(commands[i], " \t\n", &words);
+            int input_words = strsplit(commands[i], " \t\n", &words, 1);
             char output[OUTPUT_MAX_LENGTH] = "";
             run(words[0], words[1], output);
 

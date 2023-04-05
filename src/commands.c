@@ -96,7 +96,7 @@ void cd(char output[], char newRoute[], char workingDir[]) {
 
     else {
         char **folders = malloc(FOLDER_DEPTH_MAX * sizeof(char *));
-        int num_folders = strsplit(newRoute, "/", &folders);
+        int num_folders = strsplit(newRoute, "/", &folders, 0);
 
         for (int i = 0; i < num_folders; i++) {
 
@@ -134,6 +134,11 @@ void history(char output[], char *history_arr[], int historyIndex) {
         if (i < historyIndex - 1) strcat(entry, "\n");
         strcat(output, entry);
     }
+}
+
+void echo(char output[], char *input) {
+
+    sprintf(output, "%s", input);
 }
 
 int _change_working_dir(char fullRoute[], char workingDir[]) {

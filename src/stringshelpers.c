@@ -3,20 +3,39 @@
 #include <string.h>
 #include <ctype.h>
 
-int strsplit(char *str, char *delim, char ***output) {
+char* trim(char* str);
+
+
+int strsplit(char *str, char *delim, char ***output, int only_first) {
 
     int i = 0;
-    char *token = strtok(str, delim);
+    char *token;
+    char *copy = strdup(trim(str)); // Hacemos una copia de la cadena original
 
-    while (token != NULL) {
-        if (strcmp(token, "") != 0) {
-            (*output)[i] = token;
-            token = strtok(NULL, delim);
-            i++;
+    if (only_first == 1) {
+        token = strchr(copy, *delim); // Buscamos la primera ocurrencia del delimitador en la copia
+
+        if (token != NULL) {
+            *token = '\0'; // Reemplazamos el delimitador por un carácter nulo en la copia
+            (*output)[0] = copy; // La primera posición del arreglo de salida es la cadena original
+            (*output)[1] = token + strlen(delim) - 2; // La segunda posición del arreglo de salida es la segunda parte de la cadena separada por el delimitador
+        } else {
+            (*output)[0] = str; // Si no se encuentra el delimitador, la cadena original es la única parte del arreglo de salida
+            (*output)[1] = "";
+        }
+    } else {
+        token = strtok(copy, delim); // Separamos la copia en todas las ocurrencias del delimitador
+        while (token != NULL) {
+            if (strcmp(token, "") != 0) {
+                (*output)[i] = token;
+                token = strtok(NULL, delim);
+                i++;
+            }
         }
     }
     return i;
 }
+
 
 // Función para comparar dos cadenas de caracteres ignorando mayúsculas y minúsculas
 int strcmp_nocap(const void *a, const void *b) {

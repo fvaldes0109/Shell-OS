@@ -51,8 +51,8 @@ void run(char *command, char *input, char *output) {
         history(output, history_arr, historyIndex);
     }
     else if (strcmp(command, "echo") == 0) {
-
-        history(output, history_arr, historyIndex);
+        
+        echo(output, input);
     }
     else strcpy(output, "Comando desconocido");
 
