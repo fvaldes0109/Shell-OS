@@ -14,7 +14,7 @@ int main() {
         
         printf("\x1b[33mmi-consola\x1b[0m $ ");
 
-        char user_input[INPUT_MAX_LENGTH];
+        char user_input[INPUT_MAX_LENGTH] = "";
         fgets(user_input, INPUT_MAX_LENGTH, stdin);
 
         if (user_input[strlen(user_input) - 1] == '\n') user_input[strlen(user_input) - 1] = '\0';
@@ -22,7 +22,6 @@ int main() {
 
         char* commands[INPUT_MAX_WORDS];
         int flags[INPUT_MAX_WORDS];
-
         int n_commands = parse_input(user_input, commands, flags);
 
         char last_output[OUTPUT_MAX_LENGTH] = "";
@@ -33,9 +32,11 @@ int main() {
             int input_words = strsplit(commands[i], " \t\n", &words, 1);
 
             if (flags[i] == 0) {
+
                 run(words[0], words[1], last_output);
             }
             else if (flags[i] == -3) {
+
                 run(words[0], last_output, last_output);
             }
             else if (flags[i] == -2 || flags[i] == -1) {
@@ -44,6 +45,23 @@ int main() {
                 fprintf(file, "%s\n", last_output);
                 fclose(file);
                 last_output[0] = '\0';
+            }
+            else if (flags[i] == 1) {
+
+                FILE* file = fopen(commands[i + 1], "r");
+                
+                /* Get the number of bytes */
+                fseek(file, 0L, SEEK_END);
+                long numbytes = ftell(file);
+                
+                /* reset the file position indicator to 
+                the beginning of the file */
+                fseek(file, 0L, SEEK_SET);	
+                
+                /* copy all the text into the buffer */
+                fread(last_output, sizeof(char), numbytes, file);
+                fclose(file);
+                i++;
             }
 
             free(words);
