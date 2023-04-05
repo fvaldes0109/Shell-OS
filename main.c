@@ -17,6 +17,10 @@ int main() {
         char user_input[INPUT_MAX_LENGTH] = "";
         fgets(user_input, INPUT_MAX_LENGTH, stdin);
 
+        for (size_t i = 0; i < strlen(user_input); i++) {
+            if (user_input[i] == '#') user_input[i] = '\0';
+        }
+
         if (user_input[strlen(user_input) - 1] == '\n') user_input[strlen(user_input) - 1] = '\0';
         if (user_input[0] != ' ') history_push(user_input, 1);
 
