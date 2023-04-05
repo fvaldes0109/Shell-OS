@@ -55,9 +55,6 @@ void run(char *command, char *input, char *output) {
         echo(output, input);
     }
     else strcpy(output, "Comando desconocido");
-
-
-    printf("%s\n", output);
 }
 
 void history_push(char command[], int updateFile) {
