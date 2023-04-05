@@ -18,7 +18,6 @@ void init() {
 
     getcwd(workingDir, sizeof(workingDir));
     
-    // Read history from file
     FILE *file = fopen(".history", "r");
     if (file) {
 
@@ -32,30 +31,27 @@ void init() {
     }
 }
 
-void run(char command[]) {
+void run(char *command, char *input, char *output) {
     
     if (command[strlen(command) - 1] == '\n') command[strlen(command) - 1] = '\0';
-    if (command[0] != ' ' || strcmp(command, "again") != 0) _history_push(command, 1);
+    if (command[0] != ' ' || strcmp(command, "again") != 0) _history_push(command, 1); // Se rompio
 
-    char **words = malloc(INPUT_MAX_WORDS * sizeof(char *));
+    
 
-    int input_words = strsplit(command, " \t\n", &words);
-    char output[OUTPUT_MAX_LENGTH] = "";
-
-    if (strcmp(words[0], "pwd") == 0) {
+    if (strcmp(command, "pwd") == 0) {
 
         pwd(output, workingDir);
     }
-    else if (strcmp(words[0], "ls") == 0) {
+    else if (strcmp(command, "ls") == 0) {
 
         ls(output, workingDir);
     }
-    else if (strcmp(words[0], "cd") == 0) {
+    else if (strcmp(command, "cd") == 0) {
 
-        if (input_words == 1) return;
-        cd(output, words[1], workingDir);
+        if (strlen(input) == 0) return;
+        cd(output, input, workingDir);
     }
-    else if (strcmp(words[0], "history") == 0) {
+    else if (strcmp(command, "history") == 0) {
 
         history(output, history_arr, historyIndex);
     }

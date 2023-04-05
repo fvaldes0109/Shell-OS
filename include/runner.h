@@ -1,4 +1,4 @@
 
 void init();
 
-void run(char command[]);
+void run(char *command, char *input, char *output);

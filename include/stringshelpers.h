@@ -4,3 +4,7 @@
 int strcmp_nocap(const void *a, const void *b);
 
 int strsplit(char *str, char *delim, char ***output);
+
+int parse_input(char* input_str, char** commands, int* flags);
+
+char* trim(char* str);

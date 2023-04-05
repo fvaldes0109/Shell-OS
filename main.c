@@ -1,7 +1,9 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "runner.h"
 #include "constants.h"
+#include "stringshelpers.h"
 
 int main() {
 
@@ -11,10 +13,23 @@ int main() {
         
         printf("\x1b[33mmi-consola\x1b[0m $ ");
 
-        char input[INPUT_MAX_LENGTH];
-        fgets(input, INPUT_MAX_LENGTH, stdin);
+        char user_input[INPUT_MAX_LENGTH];
+        fgets(user_input, INPUT_MAX_LENGTH, stdin);
 
-        run(input);
+        char* commands[INPUT_MAX_WORDS];
+        int flags[INPUT_MAX_WORDS];
+
+        int n_commands = parse_input(user_input, commands, flags);
+
+        for (size_t i = 0; i < n_commands; i++) {
+            
+            char **words = malloc(INPUT_MAX_WORDS * sizeof(char *));
+            int input_words = strsplit(commands[i], " \t\n", &words);
+            char output[OUTPUT_MAX_LENGTH] = "";
+            run(words[0], words[1], output);
+
+            free(words);
+        }
     }
     
     return 0;
