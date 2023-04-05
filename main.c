@@ -34,7 +34,6 @@ int main() {
 
             if (flags[i] == 0) {
                 run(words[0], words[1], last_output);
-                if (i == input_words || flags[i + 1] >= 0) printf("%s\n", last_output);
             }
             else if (flags[i] == -3) {
                 run(words[0], last_output, last_output);
@@ -44,10 +43,12 @@ int main() {
                 FILE* file = fopen(words[0], (flags[i] == -2 ? "a" : "w"));
                 fprintf(file, "%s\n", last_output);
                 fclose(file);
+                last_output[0] = '\0';
             }
 
             free(words);
         }
+        if (strlen(last_output) > 0) printf("%s\n", last_output);
     }
     
     return 0;
