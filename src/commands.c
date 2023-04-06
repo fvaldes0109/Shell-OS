@@ -7,6 +7,8 @@
 
 #include "stringshelpers.h"
 #include "constants.h"
+#include "runner.h"
+
 
 int _change_working_dir(char fullRoute[], char workingDir[]);
 
@@ -127,18 +129,34 @@ void cd(char output[], char newRoute[], char workingDir[]) {
 
 void history(char output[], char *history_arr[], int historyIndex) {
 
-    for (int i = 0; i < historyIndex; i++) {
+    int i = (historyIndex == 10 ? 1 : 0);
+    for (; i < historyIndex; i++) {
 
         char entry[INPUT_MAX_LENGTH];
-        sprintf(entry, "%d: %s", i + 1, history_arr[i]);
+        sprintf(entry, "%d: %s", i + (historyIndex == 10 ? 0 : 1), history_arr[i]);
         if (i < historyIndex - 1) strcat(entry, "\n");
         strcat(output, entry);
     }
+
+    char new_line[20];
+    sprintf(new_line, "%d: history", i + (historyIndex == 10 ? 0 : 1));
+    if (historyIndex > 0) strcat(output, "\n");
+    strcat(output, new_line);
 }
 
 void echo(char output[], char *input) {
 
     sprintf(output, "%s", input);
+}
+
+void again(char output[], int n, char *history_arr[], int historyIndex) {
+
+    if (n > historyIndex) {
+        sprintf(output, "No hay tantos comandos en el historial");
+        return;
+    }
+
+    process_input(history_arr[n - 1]);
 }
 
 int _change_working_dir(char fullRoute[], char workingDir[]) {
