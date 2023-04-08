@@ -11,6 +11,7 @@ void history_push(char command[], int updateFile);
 
 void run(char *command, char *input, char *output);
 
+
 char workingDir[OUTPUT_MAX_LENGTH];
 char *history_arr[10];
 int historyIndex = 0;
@@ -114,6 +115,10 @@ void run(char *command, char *input, char *output) {
 
         if (strlen(input) == 0) return;
         again(output, atoi(input), history_arr, historyIndex);
+    }
+    else if (strcmp(command, "exit") == 0) {
+
+        exit(0);
     }
     else strcpy(output, "Comando desconocido");
 }

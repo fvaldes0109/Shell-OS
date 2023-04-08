@@ -6,9 +6,6 @@
 #include "constants.h"
 #include "stringshelpers.h"
 
-void process_input(char user_input[]);
-
-
 int main() {
 
     init();
