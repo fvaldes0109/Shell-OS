@@ -12,7 +12,7 @@
 
 void history_push(char command[], int updateFile);
 
-void run(int argc, char **argv, char *output);
+void run(int argc, char **argv, int stdin_fd, char *output);
 
 
 char workingDir[OUTPUT_MAX_LENGTH];
@@ -51,47 +51,50 @@ void process_input(char user_input[]) {
         char **argv = malloc(INPUT_MAX_WORDS * sizeof(char *));
         int argc = strsplit(commands[i], " \t\n", &argv, 0);
         argv[argc] = NULL;        
-        run(argc, argv, last_output);
 
-        // if (flags[i] == 0) {
+        if (flags[i] == 0) {
 
-        //     run(argv[0], argv[1], last_output);
-        // }
-        // else if (flags[i] == -3) {
+            run(argc, argv, 0, last_output);
+        }
+        else if (flags[i] == -3) {
 
-        //     run(argv[0], last_output, last_output);
-        // }
-        // else if (flags[i] == -2 || flags[i] == -1) {
+            FILE *temp_file = fopen(".temp", "w");
+            fprintf(temp_file, "%s", last_output);
+            fclose(temp_file);
 
-        //     FILE* file = fopen(argv[0], (flags[i] == -2 ? "a" : "w"));
-        //     fprintf(file, "%s\n", last_output);
-        //     fclose(file);
-        //     last_output[0] = '\0';
-        // }
-        // else if (flags[i] == 1) {
+            int fd = open(".temp", O_RDONLY);
+            run(argc, argv, fd, last_output);
+            close(fd);
 
-        //     FILE* file = fopen(commands[i + 1], "r");
+            remove(".temp");
+        }
+        else if (flags[i] == -2 || flags[i] == -1) {
+
+            FILE* file = fopen(argv[0], (flags[i] == -2 ? "a" : "w"));
+            fprintf(file, "%s", last_output);
+            fclose(file);
+            last_output[0] = '\0';
+        }
+        else if (flags[i] == 1) {
             
-        //     /* Get the number of bytes */
-        //     fseek(file, 0L, SEEK_END);
-        //     long numbytes = ftell(file);
-            
-        //     /* reset the file position indicator to 
-        //     the beginning of the file */
-        //     fseek(file, 0L, SEEK_SET);	
-            
-        //     /* copy all the text into the buffer */
-        //     fread(last_output, sizeof(char), numbytes, file);
-        //     fclose(file);
-        //     i++;
-        // }
+            int stdin_fd = open(commands[i + 1], O_RDONLY);
+            if(stdin_fd == -1) {
+                perror("open");
+                exit(1);
+            }
+
+            run(argc, argv, stdin_fd, last_output);
+
+            close(stdin_fd);
+            i++;
+        }
         free(argv);
     }
     if (strlen(last_output) > 0) printf("%s", last_output);
     if (user_input[0] != ' ') history_push(user_input, 1);
 }
 
-void execute(char *bin_path, char **argv, char *output) {
+void execute(char *bin_path, char **argv, int stdin_fd, char *output) {
     
     int fd[2];
     if(pipe(fd) == -1) {
@@ -104,10 +107,13 @@ void execute(char *bin_path, char **argv, char *output) {
         perror("fork");
         exit(1);
     } else if(pid == 0) {
-        // redirigir la salida estandar del proceso hijo al pipe
+        // redirigir la salida estándar del proceso hijo al pipe
         close(fd[0]); // cerrar el extremo de lectura del pipe
         dup2(fd[1], STDOUT_FILENO);
         close(fd[1]); // cerrar el extremo de escritura del pipe
+        
+        // redirigir la entrada estándar del proceso hijo al descriptor de archivo dado
+        dup2(stdin_fd, STDIN_FILENO);
         
         // ejecutar el programa en el directorio enviado con los argumentos que se pasaron
         execvp(bin_path, argv);
@@ -121,7 +127,6 @@ void execute(char *bin_path, char **argv, char *output) {
             perror("read");
             exit(1);
         }
-        // printf("AQUI: %d, %s\n", (int)n, output);
         output[n] = '\0'; // agregar el caracter de terminación de cadena
         close(fd[0]); // cerrar el extremo de lectura del pipe
         
@@ -135,7 +140,7 @@ void execute(char *bin_path, char **argv, char *output) {
     }
 }
 
-void run(int argc, char **argv, char *output) {
+void run(int argc, char **argv, int stdin_fd, char *output) {
 
     if (strcmp(argv[0], "cd") == 0) {
 
@@ -167,7 +172,7 @@ void run(int argc, char **argv, char *output) {
         strcat(local_bin, "/");
         strcat(local_bin, argv[0]);
         if (access(local_bin, X_OK) == 0) {
-            execute(local_bin, argv, output);
+            execute(local_bin, argv, stdin_fd, output);
             found = 1;
         }
 
@@ -181,7 +186,7 @@ void run(int argc, char **argv, char *output) {
                 if (access(command_path, X_OK) == 0) { // verificar si el comando existe y es ejecutable
                     // ejecutar el comando con la entrada y salida especificadas
                     // (Aquí debería ir el código para ejecutar el comando y colocar la salida en 'output')
-                    execute(command_path, argv, output);
+                    execute(command_path, argv, stdin_fd, output);
                     found = 1;
                 }
                 dir = strtok(NULL, ":"); // pasar al siguiente directorio
