@@ -1,6 +1,5 @@
-
 void init();
 
-void process_input(char user_input[]);
+void run(int argc, char **argv, int stdin_fd, char *output);
 
 void history_push(char command[], int updateFile);

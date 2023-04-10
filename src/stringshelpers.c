@@ -89,13 +89,13 @@ char* trim(char* str) {
     return str;
 }
 
-int parse_input(char* input_str, char** commands, int* flags) {
+int parse_input(char* user_input, char** commands, int* flags) {
 
-    char* delimiter = "|<>\n";
+    char* delimiter = ";&|\n";
     int i = 0;
 
     // parse the first command
-    char* input_copy = strdup(input_str);
+    char* input_copy = strdup(user_input);
     char* token = strtok(input_copy, delimiter);
     
     if (token == NULL) return 0;
@@ -109,7 +109,58 @@ int parse_input(char* input_str, char** commands, int* flags) {
         if (next_token != NULL) {
             flags[i] = 0;
             // determine the flag based on the delimiter
-            char* delimiter_pos = strstr(input_str, next_token) - 1;
+            char* delimiter_pos = strstr(user_input, next_token) - 1;
+            while (*delimiter_pos == ' ') {
+                delimiter_pos--;
+            }
+            if (*delimiter_pos == ';') {
+                flags[i] = 1;
+            }
+            else if (*delimiter_pos == '&') {
+                char* prev_delimiter_pos = delimiter_pos - 1;
+                while (*prev_delimiter_pos == ' ') {
+                    prev_delimiter_pos--;
+                }
+                if (*prev_delimiter_pos == '&') flags[i] = 2;
+            }
+            else if (*delimiter_pos == '|') {
+                char* prev_delimiter_pos = delimiter_pos - 1;
+                while (*prev_delimiter_pos == ' ') {
+                    prev_delimiter_pos--;
+                }
+                if (*prev_delimiter_pos == '|') flags[i] = 3;
+            }
+            // parse the next command
+            commands[i] = trim(next_token);
+            i++;
+        }
+        token = next_token;
+    }
+
+    return i;
+}
+
+int parse_command(char* command, char** instructions, int* flags) {
+
+    char* delimiter = "|<>\n";
+    int i = 0;
+
+    // parse the first instruction
+    char* input_copy = strdup(command);
+    char* token = strtok(input_copy, delimiter);
+    
+    if (token == NULL) return 0;
+
+    instructions[i] = token;
+    flags[i] = 0;
+    i++;
+    // parse the rest of the instructions and flags
+    while (token != NULL) {
+        char* next_token = strtok(NULL, delimiter);
+        if (next_token != NULL) {
+            flags[i] = 0;
+            // determine the flag based on the delimiter
+            char* delimiter_pos = strstr(command, next_token) - 1;
             while (*delimiter_pos == ' ') {
                 delimiter_pos--;
             }
@@ -128,8 +179,8 @@ int parse_input(char* input_str, char** commands, int* flags) {
             } else if (*delimiter_pos == '<') {
                 flags[i - 1] = 1;
             }
-            // parse the next command
-            commands[i] = trim(next_token);
+            // parse the next instruction
+            instructions[i] = trim(next_token);
             i++;
         }
         token = next_token;
