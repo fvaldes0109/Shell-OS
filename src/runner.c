@@ -33,18 +33,18 @@ void init() {
     }
 }
 
-void execute(char *bin_path, char **argv, int stdin_fd, char *output) {
+int execute(char *bin_path, char **argv, int stdin_fd, char *output) {
     
     int fd[2];
     if(pipe(fd) == -1) {
         perror("pipe");
-        exit(1);
+        return 1;
     }
 
     pid_t pid = fork();
     if(pid == -1) {
         perror("fork");
-        exit(1);
+        return 1;
     } else if(pid == 0) {
         // redirigir la salida estándar del proceso hijo al pipe
         close(fd[0]); // cerrar el extremo de lectura del pipe
@@ -64,7 +64,7 @@ void execute(char *bin_path, char **argv, int stdin_fd, char *output) {
         ssize_t n = read(fd[0], output, OUTPUT_MAX_LENGTH-1);
         if(n == -1) {
             perror("read");
-            exit(1);
+            return 1;
         }
         output[n] = '\0'; // agregar el caracter de terminación de cadena
         close(fd[0]); // cerrar el extremo de lectura del pipe
@@ -74,16 +74,17 @@ void execute(char *bin_path, char **argv, int stdin_fd, char *output) {
         waitpid(pid, &status, 0);
         if(!WIFEXITED(status) || WEXITSTATUS(status) != 0) {
             fprintf(stderr, "El proceso hijo terminó de forma anormal\n");
-            exit(1);
+            return 1;
         }
     }
+    return 0;
 }
 
-void run(int argc, char **argv, int stdin_fd, char *output) {
+int run(int argc, char **argv, int stdin_fd, char *output) {
 
     if (strcmp(argv[0], "cd") == 0) {
 
-        if (argc == 1) return;
+        if (argc == 1) return 1;
         cd(output, argv[1], workingDir);
     }
     else if (strcmp(argv[0], "history") == 0) {
@@ -92,7 +93,7 @@ void run(int argc, char **argv, int stdin_fd, char *output) {
     }
     else if (strcmp(argv[0], "again") == 0) {
 
-        if (argc == 1) return;
+        if (argc == 1) return 1;
         again(output, atoi(argv[1]), history_arr, historyIndex);
     }
     else if (strcmp(argv[0], "exit") == 0) {
@@ -133,7 +134,10 @@ void run(int argc, char **argv, int stdin_fd, char *output) {
             free(path_copy);
         }
 
-        if (found == 0) strcpy(output, "Comando desconocido");
+        if (found == 0) {
+            strcpy(output, "Comando desconocido\n");
+            return 1;
+        }
     }
 
     size_t len = strlen(output);
@@ -141,6 +145,8 @@ void run(int argc, char **argv, int stdin_fd, char *output) {
         output[len] = '\n';
         output[len + 1] = '\0';
     }
+
+    return 0;
 }
 
 void history_push(char command[], int updateFile) {

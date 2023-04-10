@@ -9,23 +9,28 @@
 #include "runner.h"
 #include "stringshelpers.h"
 
-void process_input(char user_input[]) {
+int process_command(char command[]);
+
+int process_input(char user_input[]) {
 
     if (user_input[strlen(user_input) - 1] == '\n') user_input[strlen(user_input) - 1] = '\0';
 
     char* commands[INPUT_MAX_WORDS];
     int flags[INPUT_MAX_WORDS];
     int n_commands = parse_input(user_input, commands, flags);
+    int prev_status = 0;
 
     for (size_t i = 0; i < n_commands; i++) {
 
-        process_command(commands[i]);
+        if (prev_status == 0 && flags[i] == 3) return 0;
+        else if(prev_status == 1 && flags[i] == 2) return 1;
+        prev_status = process_command(commands[i]);
     }
 
     if (user_input[0] != ' ') history_push(user_input, 1);
 }
 
-void process_command(char command[]) {
+int process_command(char command[]) {
 
     char* instructions[INPUT_MAX_WORDS];
     int flags[INPUT_MAX_WORDS];
@@ -39,9 +44,15 @@ void process_command(char command[]) {
         int argc = strsplit(instructions[i], " \t\n", &argv, 0);
         argv[argc] = NULL;        
 
+        if (n_instructions == 1 && argc == 1) {
+            if (strcmp(argv[0], "true") == 0) return 0;
+            if (strcmp(argv[0], "false") == 0) return 1;
+        }
+
         if (flags[i] == 0) {
 
-            run(argc, argv, 0, last_output);
+            int status = run(argc, argv, 0, last_output);
+            if (status != 0) return 1;
         }
         else if (flags[i] == -3) {
 
@@ -50,7 +61,8 @@ void process_command(char command[]) {
             fclose(temp_file);
 
             int fd = open(".temp", O_RDONLY);
-            run(argc, argv, fd, last_output);
+            int status = run(argc, argv, fd, last_output);
+            if (status != 0) return status;
             close(fd);
 
             remove(".temp");
@@ -66,11 +78,13 @@ void process_command(char command[]) {
             
             int stdin_fd = open(instructions[i + 1], O_RDONLY);
             if(stdin_fd == -1) {
+                printf("Error: archivo %s no encontrado\n", instructions[i + 1]);
                 perror("open");
-                exit(1);
+                return 1;
             }
 
-            run(argc, argv, stdin_fd, last_output);
+            int status = run(argc, argv, stdin_fd, last_output);
+            if (status != 0) return 1;
 
             close(stdin_fd);
             i++;
@@ -78,4 +92,6 @@ void process_command(char command[]) {
         free(argv);
     }
     if (strlen(last_output) > 0) printf("%s", last_output);
+
+    return 0;
 }
