@@ -12,7 +12,7 @@
 
 int _change_working_dir(char fullRoute[], char workingDir[]);
 
-void cd(char output[], char newRoute[], char workingDir[]) {
+int cd(char output[], char newRoute[], char workingDir[]) {
 
     // Keep a copy of workingDir
     char original[strlen(workingDir)];
@@ -21,7 +21,7 @@ void cd(char output[], char newRoute[], char workingDir[]) {
     if (newRoute[0] == '/') {
         if(_change_working_dir(newRoute, workingDir) != 0) {
             sprintf(output, "La ruta \"%s\" no existe\n", newRoute);
-            return;
+            return 1;
         }
     }
 
@@ -48,15 +48,16 @@ void cd(char output[], char newRoute[], char workingDir[]) {
 
                 sprintf(output, "El directorio \"%s\" no existe\n", newWorkingDir);
                 strcpy(workingDir, original);
-                return;
+                return 1;
             }
         }
     }
 
     sprintf(output, "Cambiado al directorio %s\n", workingDir);
+    return 0;
 }
 
-void history(char output[], char *history_arr[], int historyIndex) {
+int history(char output[], char *history_arr[], int historyIndex) {
 
     int i = (historyIndex == 10 ? 1 : 0);
     for (; i < historyIndex; i++) {
@@ -71,19 +72,21 @@ void history(char output[], char *history_arr[], int historyIndex) {
     sprintf(new_line, "%d: history", i + (historyIndex == 10 ? 0 : 1));
     if (historyIndex > 0) strcat(output, "\n");
     strcat(output, new_line);
+
+    return 0;
 }
 
-void again(char output[], int n, char *history_arr[], int historyIndex) {
+int again(char output[], int n, char *history_arr[], int historyIndex) {
 
     if (n > historyIndex) {
         sprintf(output, "No hay tantos comandos en el historial\n");
-        return;
+        return 1;
     }
 
-    process_input(history_arr[n - 1], 0);
+    return process_input(history_arr[n - 1], 0);
 }
 
-void help(char output[], char *keyword) {
+int help(char output[], char *keyword) {
 
     char route[FOLDER_DEPTH_MAX] = ".help/";
     strcat(route, keyword);
@@ -91,7 +94,7 @@ void help(char output[], char *keyword) {
     FILE *file = fopen(route, "r");
     if (file == NULL) {
         sprintf(output, "No se encontró ayuda para el comando \"%s\"\n", keyword);
-        return;
+        return 1;
     }
 
     char line[INPUT_MAX_LENGTH];
@@ -100,6 +103,8 @@ void help(char output[], char *keyword) {
     }
 
     fclose(file);
+
+    return 0;
 }
 
 int _change_working_dir(char fullRoute[], char workingDir[]) {

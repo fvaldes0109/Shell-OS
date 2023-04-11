@@ -82,23 +82,24 @@ int execute(char *bin_path, char **argv, int stdin_fd, char *output) {
 
 int run(int argc, char **argv, int stdin_fd, char *output) {
 
+    int status = 0;
     if (strcmp(argv[0], "cd") == 0) {
 
         if (argc == 1) return 1;
-        cd(output, argv[1], workingDir);
+        status = cd(output, argv[1], workingDir);
     }
     else if (strcmp(argv[0], "history") == 0) {
 
-        history(output, history_arr, historyIndex);
+        status = history(output, history_arr, historyIndex);
     }
     else if (strcmp(argv[0], "again") == 0) {
 
         if (argc == 1) return 1;
-        again(output, atoi(argv[1]), history_arr, historyIndex);
+        status = again(output, atoi(argv[1]), history_arr, historyIndex);
     }
     else if (strcmp(argv[0], "help") == 0) {
 
-        help(output, (argc > 1 ? argv[1] : "default"));
+        status = help(output, (argc > 1 ? argv[1] : "default"));
     }
     else if (strcmp(argv[0], "exit") == 0) {
 
@@ -116,7 +117,7 @@ int run(int argc, char **argv, int stdin_fd, char *output) {
         strcat(local_bin, "/");
         strcat(local_bin, argv[0]);
         if (access(local_bin, X_OK) == 0) {
-            execute(local_bin, argv, stdin_fd, output);
+            status = execute(local_bin, argv, stdin_fd, output);
             found = 1;
         }
 
@@ -130,7 +131,7 @@ int run(int argc, char **argv, int stdin_fd, char *output) {
                 if (access(command_path, X_OK) == 0) { // verificar si el comando existe y es ejecutable
                     // ejecutar el comando con la entrada y salida especificadas
                     // (Aquí debería ir el código para ejecutar el comando y colocar la salida en 'output')
-                    execute(command_path, argv, stdin_fd, output);
+                    status = execute(command_path, argv, stdin_fd, output);
                     found = 1;
                 }
                 dir = strtok(NULL, ":"); // pasar al siguiente directorio
@@ -150,7 +151,7 @@ int run(int argc, char **argv, int stdin_fd, char *output) {
         output[len + 1] = '\0';
     }
 
-    return 0;
+    return status;
 }
 
 void history_push(char command[], int updateFile) {

@@ -1,7 +1,7 @@
-void cd(char output[], char newRoute[], char workingDir[]);
+int cd(char output[], char newRoute[], char workingDir[]);
 
-void history(char output[], char *history_arr[], int historyIndex);
+int history(char output[], char *history_arr[], int historyIndex);
 
-void again(char output[], int n, char *history_arr[], int historyIndex);
+int again(char output[], int n, char *history_arr[], int historyIndex);
 
-void help(char output[], char *keyword);
+int help(char output[], char *keyword);
