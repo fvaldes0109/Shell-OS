@@ -12,6 +12,12 @@
 
 int _change_working_dir(char fullRoute[], char workingDir[]);
 
+int pwd(char output[], char workingDir[]) {
+
+    strcpy(output, workingDir);
+    return 0;
+}
+
 int cd(char output[], char newRoute[], char workingDir[]) {
 
     // Keep a copy of workingDir

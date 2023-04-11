@@ -1,0 +1,18 @@
+
+Estas funcionalidades son:
+
+1. Imprimir el prompt: Al ejecutar el programa, y cuando la terminal se encuentra esperando una entrada manual, se muestra el mensaje 'better-call-shell $ '. Es simplemente colocar un while(1) en el que en cada iteración se imprima dicho prompt, se espere por una entrada del usuario y se procese dicha entrada.
+
+2. Ejecución de comandos: Permite ejecutar cualquier binario que se encuentre en el PATH, o en cualquier ruta relativa proporcionada. Es posible pasarle los argv a estos procesos. Para esta funcionalidad se comprueba si el archivo existe en la ruta actual o en el path. De ser así, se ejecuta, pasándole los argv, un file descriptor donde donde estará la entrada del comando, y un arreglo de caracteres donde se colocará la salida. Actualmente tiene el problema de que si se ejecuta un proceso cuya salida se imprima de forma secuencial, el shell espera a que el proceso hijo termine para mostrar toda su salida de golpe. Los comandos 'pwd', 'history' y 'help' sobreescriben a los del sistema con una implementación existente en este código, pues los comportamientos solicitados en la orientacion son diferentes. En el caso de 'pwd' se sustituyó por un método que se encarga de imprimir una variable que almacena el directorio actual y que puede ser modificada por 'cd'.
+
+3. Comando cd: El comando cd <dir> se encarga de cambiar la ruta actual por una relativa o absoluta que se proporcione en 'dir'. Para esto siempre guardamos una cadena donde se almacena la ruta actual. Al ejecutar el comando, parseamos la cadena que se pasó como argumento para manejar rutas como '.' o '..'. Para especificar que se trata de una ruta relativa, dicha ruta debe comenzar con el nombre del directorio destino o con './', y para una ruta absoluta debe empezar con '/'.
+
+4. Redirigir stdin y stdout entre comandos y ficheros: Se implementaron los operadores '>', '>>', '<'. Su funcionalidad es igual a la del shell de Linux. Esta redirección es compatible con la ejecucion de comandos del punto 2.
+
+5. Tuberias: Posibilidad de redirigir la salida estándar de un comando hacia la entrada de otro. Es posible encadenar esto con la redirección de salida entre comandos y archivos (funcionalidad 4).
+
+6. Una vez terminado el comando previo, se debe mostrar el prompt nuevamente.
+
+7. Solamente habrá un espacio entre cada uno de los tokens de la entrada: ANULADO. Fue sobreescrito por el punto 11, pues es posible separar los comandos y parametros por cualquier cantidad de espacios.
+
+8. Al escribir exit el shell termina su ejecución con exit status 0. Además al colocar un caracter '# se interpreta que todo lo que aparece a continuación de este es un comentario, y se ignora.

@@ -12,7 +12,7 @@ int main() {
 
     while (1) {
         
-        printf("\x1b[33mmi-consola\x1b[0m $ ");
+        printf("\x1b[33mbetter-call-shell\x1b[0m $ ");
 
         char user_input[INPUT_MAX_LENGTH] = "";
         fgets(user_input, INPUT_MAX_LENGTH, stdin);

@@ -83,7 +83,11 @@ int execute(char *bin_path, char **argv, int stdin_fd, char *output) {
 int run(int argc, char **argv, int stdin_fd, char *output) {
 
     int status = 0;
-    if (strcmp(argv[0], "cd") == 0) {
+    if (strcmp(argv[0], "pwd") == 0) {
+
+        status = pwd(output, workingDir);
+    }
+    else if (strcmp(argv[0], "cd") == 0) {
 
         if (argc == 1) return 1;
         status = cd(output, argv[1], workingDir);
