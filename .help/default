@@ -4,12 +4,15 @@ Funcionalidades:
     - basic: (1-8) Funcionalidades básicas (3 puntos)
     - multi-pipe: (9) Múltiples tuberías (1 punto)
     - spaces: (11) Cualquier cantidad de espacios (0.5 puntos)
+    - history: (12) Historial de comandos (0.5 punts)
     - chain: (14) Operadores para encadenar comandos (0.5 puntos)
     - help: (17) Imprimir una ayuda (1 punto)
 
 Comandos built-in:
-    - cd: Cambia de directorio
+    - cd <dir>: Cambia de directorio
     - exit: Termina la ejecución del shell
-    - help: Muestra esta ayuda
+    - help <keyword>: Muestra esta ayuda o la ayuda de una palabra clave
+    - history: Muestra el historial de comandos
+    - again <x>: Ejecuta el comando x del historial
 
-Total: 6 puntos
+Total: 6.5 puntos
