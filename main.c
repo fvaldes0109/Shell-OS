@@ -21,7 +21,7 @@ int main() {
             if (user_input[i] == '#') user_input[i] = '\0';
         }
         
-        process_input(user_input);
+        process_input(user_input, 1);
     }
     
     return 0;

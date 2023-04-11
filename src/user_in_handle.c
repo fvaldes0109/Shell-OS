@@ -11,7 +11,7 @@
 
 int process_command(char command[]);
 
-int process_input(char user_input[]) {
+int process_input(char user_input[], int add_to_history) {
 
     if (user_input[strlen(user_input) - 1] == '\n') user_input[strlen(user_input) - 1] = '\0';
 
@@ -27,7 +27,7 @@ int process_input(char user_input[]) {
         prev_status = process_command(commands[i]);
     }
 
-    if (user_input[0] != ' ') history_push(user_input, 1);
+    if (add_to_history != 0 && user_input[0] != ' ') history_push(user_input, 1);
 }
 
 int process_command(char command[]) {

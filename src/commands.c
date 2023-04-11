@@ -80,7 +80,7 @@ void again(char output[], int n, char *history_arr[], int historyIndex) {
         return;
     }
 
-    process_input(history_arr[n - 1]);
+    process_input(history_arr[n - 1], 0);
 }
 
 void help(char output[], char *keyword) {

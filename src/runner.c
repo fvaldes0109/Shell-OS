@@ -155,6 +155,35 @@ int run(int argc, char **argv, int stdin_fd, char *output) {
 
 void history_push(char command[], int updateFile) {
 
+    if (updateFile == 1) {
+        
+        command[strcspn(command, "\n")] = 0; // Elimina el salto de linea al final de la entrada
+
+        // Buscar ocurrencias de 'again X' en el comando
+        char* again_ptr = strstr(command, "again ");
+        while (again_ptr != NULL) {
+            int x;
+            sscanf(again_ptr + 6, "%d", &x); // Leer el valor de X después de 'again '
+            if (x <= historyIndex && x > 0) {
+                // Reemplazar 'again X' por el elemento del historial correspondiente
+                char *continue_pos = again_ptr + 6 + (x == 10 ? 2 : 1);
+                char *tail = strdup(continue_pos);
+                char* history_item = history_arr[x - 1];
+                int history_len = strlen(history_item);
+                int replace_len = snprintf(NULL, 0, "%s", history_item);
+                char* replace_str = malloc(replace_len + 1);
+                snprintf(replace_str, replace_len + 1, "%s", history_item);
+                printf("RP: %s\n", tail);
+                strncpy(again_ptr, replace_str, history_len);
+                strcpy(again_ptr + history_len, tail);
+            }
+            else {
+                printf("Error: %d está fuera del rango del historial\n", x);
+            }
+            again_ptr = strstr(again_ptr + 1, "again "); // Buscar la próxima ocurrencia de 'again '
+        }
+
+    }
 
     if (historyIndex == 10) {
         for (int i = 0; i < 9; i++) {
