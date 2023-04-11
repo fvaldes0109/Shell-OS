@@ -96,6 +96,10 @@ int run(int argc, char **argv, int stdin_fd, char *output) {
         if (argc == 1) return 1;
         again(output, atoi(argv[1]), history_arr, historyIndex);
     }
+    else if (strcmp(argv[0], "help") == 0) {
+
+        help(output, (argc > 1 ? argv[1] : "default"));
+    }
     else if (strcmp(argv[0], "exit") == 0) {
 
         exit(0);

@@ -83,6 +83,25 @@ void again(char output[], int n, char *history_arr[], int historyIndex) {
     process_input(history_arr[n - 1]);
 }
 
+void help(char output[], char *keyword) {
+
+    char route[FOLDER_DEPTH_MAX] = ".help/";
+    strcat(route, keyword);
+
+    FILE *file = fopen(route, "r");
+    if (file == NULL) {
+        sprintf(output, "No se encontró ayuda para el comando \"%s\"\n", keyword);
+        return;
+    }
+
+    char line[INPUT_MAX_LENGTH];
+    while (fgets(line, INPUT_MAX_LENGTH, file) != NULL) {
+        strcat(output, line);
+    }
+
+    fclose(file);
+}
+
 int _change_working_dir(char fullRoute[], char workingDir[]) {
 
     DIR *dir;
