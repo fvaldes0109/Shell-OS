@@ -1,4 +1,15 @@
-Ayuda de prueba
-Asd
+Integrantes: Fernando Valdés García y Loitzel Morales Santiesteban
 
-Amogus
+Funcionalidades:
+    - basic: (1-8) Funcionalidades básicas (3 puntos)
+    - multi-pipe: (9) Múltiples tuberías (1 punto)
+    - spaces: (11) Cualquier cantidad de espacios (0.5 puntos)
+    - chain: (14) Operadores para encadenar comandos (0.5 puntos)
+    - help: (17) Imprimir una ayuda (1 punto)
+
+Comandos built-in:
+    - cd: Cambia de directorio
+    - exit: Termina la ejecución del shell
+    - help: Muestra esta ayuda
+
+Total: 6 puntos
