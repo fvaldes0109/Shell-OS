@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include "user_in_handle.h"
 #include "constants.h"
@@ -12,7 +13,10 @@ int main() {
 
     while (1) {
         
-        printf("\x1b[33mbetter-call-shell\x1b[0m $ ");
+        char workingDir[FILEPATH_MAX];
+        getcwd(workingDir, sizeof(workingDir));
+
+        printf("\x1b[33mbetter-call-shell\x1b[0m:\x1b[32m%s \x1b[0m$ ",workingDir);
 
         char user_input[INPUT_MAX_LENGTH] = "";
         fgets(user_input, INPUT_MAX_LENGTH, stdin);

@@ -36,7 +36,6 @@ int strsplit(char *str, char *delim, char ***output, int only_first) {
     return i;
 }
 
-
 // Función para comparar dos cadenas de caracteres ignorando mayúsculas y minúsculas
 int strcmp_nocap(const void *a, const void *b) {
     
@@ -187,4 +186,13 @@ int parse_command(char* command, char** instructions, int* flags) {
     }
 
     return i;
+}
+
+void add_line_break(char *output) {
+
+    size_t len = strlen(output);
+    if (output[len - 1] != '\n') {
+        output[len] = '\n';
+        output[len + 1] = '\0';
+    }
 }

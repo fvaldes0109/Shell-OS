@@ -1,9 +1,9 @@
-int pwd(char output[], char workingDir[]);
+int pwd(char workingDir[], int stdout_fd);
 
-int cd(char output[], char newRoute[], char workingDir[]);
+int cd(char newRoute[], char workingDir[], int stdout_fd);
 
-int history(char output[], char *history_arr[], int historyIndex);
+int history(char *history_arr[], int historyIndex, int stdout_fd);
 
-int again(char output[], int n, char *history_arr[], int historyIndex);
+int again(int n, char *history_arr[], int historyIndex, int stdout_fd);
 
-int help(char output[], char *keyword);
+int help(char *keyword, int stdout_fd);

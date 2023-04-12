@@ -51,47 +51,47 @@ int process_command(char command[]) {
 
         if (flags[i] == 0) {
 
-            int status = run(argc, argv, 0, last_output);
+            int status = run(argc, argv, 0, STDOUT_FILENO);
             if (status != 0) return 1;
         }
-        else if (flags[i] == -3) {
+        // else if (flags[i] == -3) {
 
-            FILE *temp_file = fopen(".temp", "w");
-            fprintf(temp_file, "%s", last_output);
-            fclose(temp_file);
+        //     FILE *temp_file = fopen(".temp", "w");
+        //     fprintf(temp_file, "%s", last_output);
+        //     fclose(temp_file);
 
-            int fd = open(".temp", O_RDONLY);
-            int status = run(argc, argv, fd, last_output);
-            if (status != 0) return status;
-            close(fd);
+        //     int fd = open(".temp", O_RDONLY);
+        //     int status = run(argc, argv, fd, last_output);
+        //     if (status != 0) return status;
+        //     close(fd);
 
-            remove(".temp");
-        }
-        else if (flags[i] == -2 || flags[i] == -1) {
+        //     remove(".temp");
+        // }
+        // else if (flags[i] == -2 || flags[i] == -1) {
 
-            FILE* file = fopen(argv[0], (flags[i] == -2 ? "a" : "w"));
-            fprintf(file, "%s", last_output);
-            fclose(file);
-            last_output[0] = '\0';
-        }
-        else if (flags[i] == 1) {
+        //     FILE* file = fopen(argv[0], (flags[i] == -2 ? "a" : "w"));
+        //     fprintf(file, "%s", last_output);
+        //     fclose(file);
+        //     last_output[0] = '\0';
+        // }
+        // else if (flags[i] == 1) {
             
-            int stdin_fd = open(instructions[i + 1], O_RDONLY);
-            if(stdin_fd == -1) {
-                printf("Error: archivo %s no encontrado\n", instructions[i + 1]);
-                perror("open");
-                return 1;
-            }
+        //     int stdin_fd = open(instructions[i + 1], O_RDONLY);
+        //     if(stdin_fd == -1) {
+        //         printf("Error: archivo %s no encontrado\n", instructions[i + 1]);
+        //         perror("open");
+        //         return 1;
+        //     }
 
-            int status = run(argc, argv, stdin_fd, last_output);
-            if (status != 0) return 1;
+        //     int status = run(argc, argv, stdin_fd, last_output);
+        //     if (status != 0) return 1;
 
-            close(stdin_fd);
-            i++;
-        }
+        //     close(stdin_fd);
+        //     i++;
+        // }
         free(argv);
     }
-    if (strlen(last_output) > 0) printf("%s", last_output);
+    // if (strlen(last_output) > 0) printf("%s", last_output);
 
     return 0;
 }

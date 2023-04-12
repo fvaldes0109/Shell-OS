@@ -10,3 +10,5 @@ int parse_input(char* user_input, char** commands, int* flags);
 int parse_command(char* command, char** instructions, int* flags);
 
 char* trim(char* str);
+
+void add_line_break(char *output);

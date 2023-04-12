@@ -2,6 +2,7 @@
 #include <string.h>
 #include <dirent.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 
@@ -12,21 +13,27 @@
 
 int _change_working_dir(char fullRoute[], char workingDir[]);
 
-int pwd(char output[], char workingDir[]) {
+int pwd(char workingDir[], int stdout_fd) {
 
-    strcpy(output, workingDir);
+    char copy[OUTPUT_MAX_LENGTH];
+    strcpy(copy, workingDir);
+    add_line_break(copy);
+    // Write the current working directory to stdout
+    write(stdout_fd, copy, strlen(copy));
+
     return 0;
 }
 
-int cd(char output[], char newRoute[], char workingDir[]) {
+int cd(char newRoute[], char workingDir[], int stdout_fd) {
 
     // Keep a copy of workingDir
     char original[strlen(workingDir)];
     strcpy(original, workingDir);
+    char *bad_result = "cd: La ruta no existe\n";
 
     if (newRoute[0] == '/') {
         if(_change_working_dir(newRoute, workingDir) != 0) {
-            sprintf(output, "La ruta \"%s\" no existe\n", newRoute);
+            write(stdout_fd, bad_result, strlen(bad_result));
             return 1;
         }
     }
@@ -52,19 +59,18 @@ int cd(char output[], char newRoute[], char workingDir[]) {
             }
             else if (_change_working_dir(newWorkingDir, workingDir) != 0) {
 
-                sprintf(output, "El directorio \"%s\" no existe\n", newWorkingDir);
+                write(stdout_fd, bad_result, strlen(bad_result));
                 strcpy(workingDir, original);
                 return 1;
             }
         }
     }
-
-    sprintf(output, "Cambiado al directorio %s\n", workingDir);
-    return 0;
+    return chdir(workingDir);
 }
 
-int history(char output[], char *history_arr[], int historyIndex) {
+int history(char *history_arr[], int historyIndex, int stdout_fd) {
 
+    char output[OUTPUT_MAX_LENGTH];
     int i = (historyIndex == 10 ? 1 : 0);
     for (; i < historyIndex; i++) {
 
@@ -79,36 +85,45 @@ int history(char output[], char *history_arr[], int historyIndex) {
     if (historyIndex > 0) strcat(output, "\n");
     strcat(output, new_line);
 
+    add_line_break(output);
+    write(stdout_fd, output, strlen(output));
+
     return 0;
 }
 
-int again(char output[], int n, char *history_arr[], int historyIndex) {
+int again(int n, char *history_arr[], int historyIndex, int stdout_fd) {
 
     if (n > historyIndex) {
-        sprintf(output, "No hay tantos comandos en el historial\n");
+
+        char *error = "again: El número de comando no existe\n";
+        write(stdout_fd, error, strlen(error));
         return 1;
     }
 
     return process_input(history_arr[n - 1], 0);
 }
 
-int help(char output[], char *keyword) {
+int help(char *keyword, int stdout_fd) {
 
     char route[FOLDER_DEPTH_MAX] = ".help/";
     strcat(route, keyword);
 
     FILE *file = fopen(route, "r");
     if (file == NULL) {
-        sprintf(output, "No se encontró ayuda para el comando \"%s\"\n", keyword);
+
+        char *error = "help: No existe la ayuda para ese comando\n";
+        write(stdout_fd, error, strlen(error));
         return 1;
     }
 
-    char line[INPUT_MAX_LENGTH];
-    while (fgets(line, INPUT_MAX_LENGTH, file) != NULL) {
+    char output[OUTPUT_MAX_LENGTH];
+    char line[OUTPUT_MAX_LENGTH];
+    while (fgets(line, OUTPUT_MAX_LENGTH, file) != NULL) {
         strcat(output, line);
     }
 
     fclose(file);
+    write(stdout_fd, output, strlen(output));
 
     return 0;
 }

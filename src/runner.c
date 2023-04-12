@@ -33,7 +33,7 @@ void init() {
     }
 }
 
-int execute(char *bin_path, char **argv, int stdin_fd, char *output) {
+int execute(char *bin_path, char **argv, int stdin_fd, int stdout_fd) {
     
     int fd[2];
     if(pipe(fd) == -1) {
@@ -59,14 +59,21 @@ int execute(char *bin_path, char **argv, int stdin_fd, char *output) {
         perror("execvp");
         exit(1);
     } else {
-        // leer la salida del pipe y guardarla en el parámetro output
+        // leer la salida del pipe y guardarla en el file descriptor dado
         close(fd[1]); // cerrar el extremo de escritura del pipe
-        ssize_t n = read(fd[0], output, OUTPUT_MAX_LENGTH-1);
-        if(n == -1) {
+        char buffer;
+        ssize_t n;
+        while ((n = read(fd[0], &buffer, 1)) > 0) {
+            if (write(stdout_fd, &buffer, 1) != 1) {
+                perror("write");
+                return 1;
+            }
+        }
+
+        if (n == -1) {
             perror("read");
             return 1;
         }
-        output[n] = '\0'; // agregar el caracter de terminación de cadena
         close(fd[0]); // cerrar el extremo de lectura del pipe
         
         // esperar a que el proceso hijo termine
@@ -80,30 +87,30 @@ int execute(char *bin_path, char **argv, int stdin_fd, char *output) {
     return 0;
 }
 
-int run(int argc, char **argv, int stdin_fd, char *output) {
+int run(int argc, char **argv, int stdin_fd, int stdout_fd) {
 
     int status = 0;
     if (strcmp(argv[0], "pwd") == 0) {
 
-        status = pwd(output, workingDir);
+        status = pwd(workingDir, stdout_fd);
     }
     else if (strcmp(argv[0], "cd") == 0) {
 
         if (argc == 1) return 1;
-        status = cd(output, argv[1], workingDir);
+        status = cd(argv[1], workingDir, stdout_fd);
     }
     else if (strcmp(argv[0], "history") == 0) {
 
-        status = history(output, history_arr, historyIndex);
+        status = history(history_arr, historyIndex, stdout_fd);
     }
     else if (strcmp(argv[0], "again") == 0) {
 
         if (argc == 1) return 1;
-        status = again(output, atoi(argv[1]), history_arr, historyIndex);
+        status = again(atoi(argv[1]), history_arr, historyIndex, stdout_fd);
     }
     else if (strcmp(argv[0], "help") == 0) {
 
-        status = help(output, (argc > 1 ? argv[1] : "default"));
+        status = help((argc > 1 ? argv[1] : "default"), stdout_fd);
     }
     else if (strcmp(argv[0], "exit") == 0) {
 
@@ -121,7 +128,7 @@ int run(int argc, char **argv, int stdin_fd, char *output) {
         strcat(local_bin, "/");
         strcat(local_bin, argv[0]);
         if (access(local_bin, X_OK) == 0) {
-            status = execute(local_bin, argv, stdin_fd, output);
+            status = execute(local_bin, argv, stdin_fd, stdout_fd);
             found = 1;
         }
 
@@ -135,8 +142,9 @@ int run(int argc, char **argv, int stdin_fd, char *output) {
                 if (access(command_path, X_OK) == 0) { // verificar si el comando existe y es ejecutable
                     // ejecutar el comando con la entrada y salida especificadas
                     // (Aquí debería ir el código para ejecutar el comando y colocar la salida en 'output')
-                    status = execute(command_path, argv, stdin_fd, output);
+                    status = execute(command_path, argv, stdin_fd, stdout_fd);
                     found = 1;
+                    break;
                 }
                 dir = strtok(NULL, ":"); // pasar al siguiente directorio
             }
@@ -144,15 +152,11 @@ int run(int argc, char **argv, int stdin_fd, char *output) {
         }
 
         if (found == 0) {
-            strcpy(output, "Comando desconocido\n");
+            
+            char *error = "Comando no encontrado";
+            write(stdout_fd, error, strlen(error));
             return 1;
         }
-    }
-
-    size_t len = strlen(output);
-    if (strcmp(argv[0], "again") != 0 && output[len - 1] != '\n') {
-        output[len] = '\n';
-        output[len + 1] = '\0';
     }
 
     return status;
@@ -178,7 +182,6 @@ void history_push(char command[], int updateFile) {
                 int replace_len = snprintf(NULL, 0, "%s", history_item);
                 char* replace_str = malloc(replace_len + 1);
                 snprintf(replace_str, replace_len + 1, "%s", history_item);
-                printf("RP: %s\n", tail);
                 strncpy(again_ptr, replace_str, history_len);
                 strcpy(again_ptr + history_len, tail);
             }
