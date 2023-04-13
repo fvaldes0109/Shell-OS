@@ -133,9 +133,12 @@ int run(int argc, char **argv, int stdin_fd, int stdout_fd) {
         int found = 0;
         // buscar en el directorio local
         char local_bin[FOLDER_DEPTH_MAX];
-        strcpy(local_bin, workingDir);
-        strcat(local_bin, "/");
-        strcat(local_bin, argv[0]);
+        if (argv[0][0] != '/') {
+            strcpy(local_bin, workingDir);
+            strcat(local_bin, "/");
+            strcat(local_bin, argv[0]);
+        }
+        else strcpy(local_bin, argv[0]);
         if (access(local_bin, X_OK) == 0) {
             status = execute(local_bin, argv, stdin_fd, stdout_fd);
             found = 1;
