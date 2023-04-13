@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 #include <fcntl.h>
 #include <string.h>
 
@@ -31,6 +32,7 @@ int process_input(char user_input[], int add_to_history) {
 }
 
 int process_command(char command[]) {
+
     char* instructions[INPUT_MAX_WORDS];
     int flags[INPUT_MAX_WORDS];
     int n_instructions = parse_command(command, instructions, flags);
@@ -48,26 +50,29 @@ int process_command(char command[]) {
             if (strcmp(argv[0], "false") == 0) return 1;
         }
 
-        int temp_fd = open(".temp_fd", O_RDWR | O_CREAT, 0644);
+        int last_out_fd = open(".temp_last_out_fd", O_RDONLY | O_CREAT, 0644);
+        int new_out_fd = open(".temp_new_out_fd", O_RDWR | O_CREAT | O_TRUNC, 0644);
 
         if (flags[i] == 0 && (i == 0 || flags[i - 1] != 1)) {
-
-            int status = run(argc, argv, (i > 0) ? temp_fd : 0, i < n_instructions - 1 ? temp_fd : 0);
+            
+            // Print last_out_fd to stdout
+            // int fd = open(".last_out_fd", O_RDONLY);
+            // char buffer[OUTPUT_MAX_LENGTH];
+            // int n = read(fd, buffer, OUTPUT_MAX_LENGTH);
+            // buffer[n] = '\0';
+            // printf("....\n%s:\n%s\n .... \n", argv[0], buffer);
+            // close(fd);
+            
+            int status = run(argc, argv, (i > 0 ? last_out_fd : STDIN_FILENO), (i < n_instructions - 1 ? new_out_fd : STDOUT_FILENO));
             if (status != 0) return 1;
         }
-        // else if (flags[i] == -3) {
+        else if (flags[i] == -3 && (i == 0 || flags[i - 1] != 1)) {
 
-        //     FILE *temp_file = fopen(".temp", "w");
-        //     fprintf(temp_file, "%s", last_output);
-        //     fclose(temp_file);
+            int in_fd = (i == 0 ? STDIN_FILENO : last_out_fd);
 
-        //     int fd = open(".temp", O_RDONLY);
-        //     int status = run(argc, argv, fd, last_output);
-        //     if (status != 0) return status;
-        //     close(fd);
-
-        //     remove(".temp");
-        // }
+            int status = run(argc, argv, in_fd, new_out_fd);
+            if (status != 0) return 1;
+        }
         else if (flags[i] == -2 || flags[i] == -1) {
             
             // If flags[i] == -2, then we need to append to the file, otherwise we need to overwrite it.
@@ -76,14 +81,14 @@ int process_command(char command[]) {
 
             if (i > 0 && flags[i - 1] == 1) {
 
-                // Write the contents of the temp_fd to out_fd
+                // Write the contents of the last_out_fd to out_fd
                 char buffer[OUTPUT_MAX_LENGTH];
-                int n_bytes = read(temp_fd, buffer, OUTPUT_MAX_LENGTH);
+                int n_bytes = read(last_out_fd, buffer, OUTPUT_MAX_LENGTH);
                 write(out_fd, buffer, n_bytes);
             }
             else {
                 
-                int status = run(argc, argv, (i > 0 ? temp_fd : STDIN_FILENO), out_fd);
+                int status = run(argc, argv, (i > 0 ? last_out_fd : STDIN_FILENO), out_fd);
                 close(out_fd);
                 if (status != 0) return status;
             }
@@ -99,15 +104,31 @@ int process_command(char command[]) {
                 return 1;
             }
 
-            int status = run(argc, argv, in_fd, i < n_instructions - 2 ? temp_fd : STDOUT_FILENO);
+            int status = run(argc, argv, in_fd, i < n_instructions - 2 ? new_out_fd : STDOUT_FILENO);
             if (status != 0) return 1;
 
             close(in_fd);
         }
+        close(new_out_fd);
+        close(last_out_fd);
 
-        close(temp_fd);
+        if (i == 0 || flags[i - 1] != 1) {
+
+            // Move the contents of .temp_new_out_fd to .temp_last_out_fd
+            int temp_new_out_fd = open(".temp_new_out_fd", O_RDONLY);
+            int temp_last_out_fd = open(".temp_last_out_fd", O_WRONLY | O_CREAT | O_TRUNC, 0644);
+            char buffer[OUTPUT_MAX_LENGTH];
+            int n_bytes = read(temp_new_out_fd, buffer, OUTPUT_MAX_LENGTH);
+            write(temp_last_out_fd, buffer, n_bytes);
+            close(temp_new_out_fd);
+            close(temp_last_out_fd);
+        }
+
         free(argv);
     }
+    
+    if (access(".temp_new_out_fd", F_OK) != -1) remove(".temp_new_out_fd");
+    if (access(".temp_last_out_fd", F_OK) != -1) remove(".temp_last_out_fd");
 
     return 0;
 }
