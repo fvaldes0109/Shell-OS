@@ -119,7 +119,7 @@ int run(int argc, char **argv, int stdin_fd, int stdout_fd) {
     }
     else if (strcmp(argv[0], "help") == 0) {
 
-        status = help((argc > 1 ? argv[1] : "default"), stdout_fd);
+        status = help((argc > 1 ? argv[1] : "default"), rootDir, stdout_fd);
     }
     else if (strcmp(argv[0], "exit") == 0) {
 

@@ -103,10 +103,11 @@ int again(int n, char *history_arr[], int historyIndex, int stdout_fd) {
     return process_input(history_arr[n - 1], 0);
 }
 
-int help(char *keyword, int stdout_fd) {
+int help(char *keyword, char *rootDir, int stdout_fd) {
 
-    char route[FOLDER_DEPTH_MAX] = ".help/";
-    strcat(route, keyword);
+    char route[FOLDER_DEPTH_MAX] = "";
+    sprintf(route, "%s/.help/%s", rootDir, keyword);
+    printf("Route: %s\n", route);
 
     FILE *file = fopen(route, "r");
     if (file == NULL) {
