@@ -12,7 +12,7 @@
 int process_command(char command[]);
 
 int process_input(char user_input[], int add_to_history) {
-
+    
     if (user_input[strlen(user_input) - 1] == '\n') user_input[strlen(user_input) - 1] = '\0';
 
     char* commands[INPUT_MAX_WORDS];
@@ -31,7 +31,6 @@ int process_input(char user_input[], int add_to_history) {
 }
 
 int process_command(char command[]) {
-
     char* instructions[INPUT_MAX_WORDS];
     int flags[INPUT_MAX_WORDS];
     int n_instructions = parse_command(command, instructions, flags);
@@ -49,9 +48,11 @@ int process_command(char command[]) {
             if (strcmp(argv[0], "false") == 0) return 1;
         }
 
-        if (flags[i] == 0) {
+        int temp_fd = open(".temp_fd", O_RDWR | O_CREAT, 0644);
 
-            int status = run(argc, argv, 0, STDOUT_FILENO);
+        if (flags[i] == 0 && (i == 0 || flags[i - 1] != 1)) {
+
+            int status = run(argc, argv, (i > 0) ? temp_fd : 0, i < n_instructions - 1 ? temp_fd : 0);
             if (status != 0) return 1;
         }
         // else if (flags[i] == -3) {
@@ -67,31 +68,46 @@ int process_command(char command[]) {
 
         //     remove(".temp");
         // }
-        // else if (flags[i] == -2 || flags[i] == -1) {
-
-        //     FILE* file = fopen(argv[0], (flags[i] == -2 ? "a" : "w"));
-        //     fprintf(file, "%s", last_output);
-        //     fclose(file);
-        //     last_output[0] = '\0';
-        // }
-        // else if (flags[i] == 1) {
+        else if (flags[i] == -2 || flags[i] == -1) {
             
-        //     int stdin_fd = open(instructions[i + 1], O_RDONLY);
-        //     if(stdin_fd == -1) {
-        //         printf("Error: archivo %s no encontrado\n", instructions[i + 1]);
-        //         perror("open");
-        //         return 1;
-        //     }
+            // If flags[i] == -2, then we need to append to the file, otherwise we need to overwrite it.
+            // If the file doesn't exist, then we need to create it.
+            int out_fd = open(instructions[i + 1], O_WRONLY | O_CREAT | (flags[i] == -2 ? O_APPEND : O_TRUNC), 0644);
 
-        //     int status = run(argc, argv, stdin_fd, last_output);
-        //     if (status != 0) return 1;
+            if (i > 0 && flags[i - 1] == 1) {
 
-        //     close(stdin_fd);
-        //     i++;
-        // }
+                // Write the contents of the temp_fd to out_fd
+                char buffer[OUTPUT_MAX_LENGTH];
+                int n_bytes = read(temp_fd, buffer, OUTPUT_MAX_LENGTH);
+                write(out_fd, buffer, n_bytes);
+            }
+            else {
+                
+                int status = run(argc, argv, (i > 0 ? temp_fd : STDIN_FILENO), out_fd);
+                close(out_fd);
+                if (status != 0) return status;
+            }
+            i++;
+
+        }
+        else if (flags[i] == 1) {
+            
+            int in_fd = open(instructions[i + 1], O_RDONLY);
+            if(in_fd == -1) {
+                char *error = "Error: archivo no encontrado\n";
+                write(STDERR_FILENO, error, strlen(error));
+                return 1;
+            }
+
+            int status = run(argc, argv, in_fd, i < n_instructions - 2 ? temp_fd : STDOUT_FILENO);
+            if (status != 0) return 1;
+
+            close(in_fd);
+        }
+
+        close(temp_fd);
         free(argv);
     }
-    // if (strlen(last_output) > 0) printf("%s", last_output);
 
     return 0;
 }

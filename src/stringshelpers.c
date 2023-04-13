@@ -3,6 +3,8 @@
 #include <string.h>
 #include <ctype.h>
 
+#include "constants.h"
+
 char* trim(char* str);
 
 
@@ -89,55 +91,45 @@ char* trim(char* str) {
 }
 
 int parse_input(char* user_input, char** commands, int* flags) {
-
-    char* delimiter = ";&|\n";
+    int num_commands = 0;
     int i = 0;
+    int j = 0;
+    int last_delim = 0;
+    int len = strlen(user_input);
+    int delim_flag = 0;
+    flags[0] = 0;
 
-    // parse the first command
-    char* input_copy = strdup(user_input);
-    char* token = strtok(input_copy, delimiter);
-    
-    if (token == NULL) return 0;
+    while (i < len) {
+        if (user_input[i] == ';' || (i < len - 1 && (user_input[i] == '&' && user_input[i + 1] == '&') || (user_input[i] == '|' && user_input[i + 1] == '|'))) {
+            // check for '&&' or '||'
+            if (user_input[i] == ';') delim_flag = 1;
+            else if (user_input[i] == '&') delim_flag = 2;
+            else if (user_input[i] == '|') delim_flag = 3;
 
-    commands[i] = token;
-    flags[i] = 0;
-    i++;
-    // parse the rest of the commands and flags
-    while (token != NULL) {
-        char* next_token = strtok(NULL, delimiter);
-        if (next_token != NULL) {
-            flags[i] = 0;
-            // determine the flag based on the delimiter
-            char* delimiter_pos = strstr(user_input, next_token) - 1;
-            while (*delimiter_pos == ' ') {
-                delimiter_pos--;
+            if (i == last_delim) {
+                commands[num_commands] = NULL;
+            } else {
+                commands[num_commands] = trim(strndup(user_input + last_delim, i - last_delim));
             }
-            if (*delimiter_pos == ';') {
-                flags[i] = 1;
-            }
-            else if (*delimiter_pos == '&') {
-                char* prev_delimiter_pos = delimiter_pos - 1;
-                while (*prev_delimiter_pos == ' ') {
-                    prev_delimiter_pos--;
-                }
-                if (*prev_delimiter_pos == '&') flags[i] = 2;
-            }
-            else if (*delimiter_pos == '|') {
-                char* prev_delimiter_pos = delimiter_pos - 1;
-                while (*prev_delimiter_pos == ' ') {
-                    prev_delimiter_pos--;
-                }
-                if (*prev_delimiter_pos == '|') flags[i] = 3;
-            }
-            // parse the next command
-            commands[i] = trim(next_token);
+            num_commands++;
+            flags[num_commands] = delim_flag;
+            i += delim_flag;
+            last_delim = i;
+        } else {
             i++;
         }
-        token = next_token;
     }
 
-    return i;
+    if (last_delim != i) {
+        commands[num_commands] = trim(strndup(user_input + last_delim, i - last_delim));
+        flags[num_commands] = delim_flag;
+        num_commands++;
+    }
+
+    return num_commands;
 }
+
+
 
 int parse_command(char* command, char** instructions, int* flags) {
 
@@ -164,16 +156,16 @@ int parse_command(char* command, char** instructions, int* flags) {
                 delimiter_pos--;
             }
             if (*delimiter_pos == '|') {
-                flags[i] = -3;
+                flags[i - 1] = -3;
             } else if (*delimiter_pos == '>') {
                 char* prev_delimiter_pos = delimiter_pos - 1;
                 while (*prev_delimiter_pos == ' ') {
                     prev_delimiter_pos--;
                 }
                 if (*prev_delimiter_pos == '>') {
-                    flags[i] = -2;
+                    flags[i - 1] = -2;
                 } else {
-                    flags[i] = -1;
+                    flags[i - 1] = -1;
                 }
             } else if (*delimiter_pos == '<') {
                 flags[i - 1] = 1;

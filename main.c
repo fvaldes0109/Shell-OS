@@ -10,7 +10,7 @@
 int main() {
 
     init();
-
+    
     while (1) {
         
         char workingDir[FILEPATH_MAX];

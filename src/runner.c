@@ -153,7 +153,8 @@ int run(int argc, char **argv, int stdin_fd, int stdout_fd) {
 
         if (found == 0) {
             
-            char *error = "Comando no encontrado";
+            char error[OUTPUT_MAX_LENGTH] = "";
+            sprintf(error, "Error: Comando %s no encontrado", argv[0]);
             write(stdout_fd, error, strlen(error));
             return 1;
         }

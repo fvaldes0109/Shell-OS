@@ -2,3 +2,4 @@ main
 .history
 filetests/
 bintests/
+.temp_fd
