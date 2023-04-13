@@ -71,17 +71,17 @@ int cd(char newRoute[], char workingDir[], int stdout_fd) {
 int history(char *history_arr[], int historyIndex, int stdout_fd) {
 
     char output[OUTPUT_MAX_LENGTH] = "";
-    int i = (historyIndex == 10 ? 1 : 0);
+    int i = (historyIndex == HISTORY_MAX ? 1 : 0);
     for (; i < historyIndex; i++) {
 
         char entry[INPUT_MAX_LENGTH];
-        sprintf(entry, "%d: %s", i + (historyIndex == 10 ? 0 : 1), history_arr[i]);
+        sprintf(entry, "%d: %s", i + (historyIndex == HISTORY_MAX ? 0 : 1), history_arr[i]);
         if (i < historyIndex - 1) strcat(entry, "\n");
         strcat(output, entry);
     }
 
-    char new_line[20];
-    sprintf(new_line, "%d: history", i + (historyIndex == 10 ? 0 : 1));
+    char new_line[INPUT_MAX_LENGTH];
+    sprintf(new_line, "%d: history", i + (historyIndex == HISTORY_MAX ? 0 : 1));
     if (historyIndex > 0) strcat(output, "\n");
     strcat(output, new_line);
 

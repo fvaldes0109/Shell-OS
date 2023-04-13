@@ -13,7 +13,7 @@ void history_push(char command[], int updateFile);
 
 
 char workingDir[FOLDER_DEPTH_MAX];
-char *history_arr[10];
+char *history_arr[HISTORY_MAX];
 int historyIndex = 0;
 
 void init() {
@@ -190,7 +190,7 @@ void history_push(char command[], int updateFile) {
             sscanf(again_ptr + 6, "%d", &x); // Leer el valor de X después de 'again '
             if (x <= historyIndex && x > 0) {
                 // Reemplazar 'again X' por el elemento del historial correspondiente
-                char *continue_pos = again_ptr + 6 + (x == 10 ? 2 : 1);
+                char *continue_pos = again_ptr + 6 + (x == HISTORY_MAX ? 2 : 1);
                 char *tail = strdup(continue_pos);
                 char* history_item = history_arr[x - 1];
                 int history_len = strlen(history_item);
@@ -208,13 +208,13 @@ void history_push(char command[], int updateFile) {
 
     }
 
-    if (historyIndex == 10) {
-        for (int i = 0; i < 9; i++) {
+    if (historyIndex == HISTORY_MAX) {
+        for (int i = 0; i < HISTORY_MAX - 1; i++) {
             strcpy(history_arr[i], history_arr[i + 1]);
         }
     }
 
-    if (historyIndex == 10) historyIndex = 9;
+    if (historyIndex == HISTORY_MAX) historyIndex = HISTORY_MAX - 1;
 
     history_arr[historyIndex] = malloc((strlen(command) + 1));
     strcpy(history_arr[historyIndex], command);
