@@ -14,7 +14,7 @@ int main() {
     while (1) {
         
         char workingDir[FILEPATH_MAX];
-        getcwd(workingDir, sizeof(workingDir));
+        gwd(workingDir);
 
         printf("\x1b[33mbetter-call-shell\x1b[0m:\x1b[32m%s \x1b[0m$ ",workingDir);
 

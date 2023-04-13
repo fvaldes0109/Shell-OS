@@ -59,18 +59,18 @@ int cd(char newRoute[], char workingDir[], int stdout_fd) {
             }
             else if (_change_working_dir(newWorkingDir, workingDir) != 0) {
 
-                write(stdout_fd, bad_result, strlen(bad_result));
+                write(STDERR_FILENO, bad_result, strlen(bad_result));
                 strcpy(workingDir, original);
                 return 1;
             }
         }
     }
-    return chdir(workingDir);
+    return 0;
 }
 
 int history(char *history_arr[], int historyIndex, int stdout_fd) {
 
-    char output[OUTPUT_MAX_LENGTH];
+    char output[OUTPUT_MAX_LENGTH] = "";
     int i = (historyIndex == 10 ? 1 : 0);
     for (; i < historyIndex; i++) {
 
@@ -96,7 +96,7 @@ int again(int n, char *history_arr[], int historyIndex, int stdout_fd) {
     if (n > historyIndex) {
 
         char *error = "again: El número de comando no existe\n";
-        write(stdout_fd, error, strlen(error));
+        write(STDERR_FILENO, error, strlen(error));
         return 1;
     }
 
@@ -112,7 +112,7 @@ int help(char *keyword, int stdout_fd) {
     if (file == NULL) {
 
         char *error = "help: No existe la ayuda para ese comando\n";
-        write(stdout_fd, error, strlen(error));
+        write(STDERR_FILENO, error, strlen(error));
         return 1;
     }
 

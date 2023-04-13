@@ -12,7 +12,7 @@
 void history_push(char command[], int updateFile);
 
 
-char workingDir[OUTPUT_MAX_LENGTH];
+char workingDir[FOLDER_DEPTH_MAX];
 char *history_arr[10];
 int historyIndex = 0;
 
@@ -31,6 +31,11 @@ void init() {
         }
         fclose(file);
     }
+}
+
+void gwd(char buffer[]) {
+
+    strcpy(buffer, workingDir);
 }
 
 int execute(char *bin_path, char **argv, int stdin_fd, int stdout_fd) {
@@ -88,6 +93,10 @@ int execute(char *bin_path, char **argv, int stdin_fd, int stdout_fd) {
 }
 
 int run(int argc, char **argv, int stdin_fd, int stdout_fd) {
+
+    char rootDir[FILEPATH_MAX] = "";
+    getcwd(rootDir, sizeof(rootDir));
+    chdir(workingDir);
 
     int status = 0;
     if (strcmp(argv[0], "pwd") == 0) {
@@ -153,13 +162,15 @@ int run(int argc, char **argv, int stdin_fd, int stdout_fd) {
 
         if (found == 0) {
             
+            chdir(rootDir);
             char error[OUTPUT_MAX_LENGTH] = "";
-            sprintf(error, "Error: Comando %s no encontrado", argv[0]);
+            sprintf(error, "Error: Comando %s no encontrado\n", argv[0]);
             write(STDERR_FILENO, error, strlen(error));
             return 1;
         }
     }
 
+    chdir(rootDir);
     return status;
 }
 
