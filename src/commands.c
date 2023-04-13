@@ -33,7 +33,7 @@ int cd(char newRoute[], char workingDir[], int stdout_fd) {
 
     if (newRoute[0] == '/') {
         if(_change_working_dir(newRoute, workingDir) != 0) {
-            write(stdout_fd, bad_result, strlen(bad_result));
+            write(STDERR_FILENO, bad_result, strlen(bad_result));
             return 1;
         }
     }

@@ -55,14 +55,6 @@ int process_command(char command[]) {
 
         if (flags[i] == 0 && (i == 0 || flags[i - 1] != 1)) {
             
-            // Print last_out_fd to stdout
-            // int fd = open(".last_out_fd", O_RDONLY);
-            // char buffer[OUTPUT_MAX_LENGTH];
-            // int n = read(fd, buffer, OUTPUT_MAX_LENGTH);
-            // buffer[n] = '\0';
-            // printf("....\n%s:\n%s\n .... \n", argv[0], buffer);
-            // close(fd);
-            
             int status = run(argc, argv, (i > 0 ? last_out_fd : STDIN_FILENO), (i < n_instructions - 1 ? new_out_fd : STDOUT_FILENO));
             if (status != 0) return 1;
         }
@@ -99,7 +91,7 @@ int process_command(char command[]) {
             
             int in_fd = open(instructions[i + 1], O_RDONLY);
             if(in_fd == -1) {
-                char *error = "Error: archivo no encontrado\n";
+                char *error ="Redirect: archivo no encontrado\n";
                 write(STDERR_FILENO, error, strlen(error));
                 return 1;
             }

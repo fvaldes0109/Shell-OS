@@ -155,7 +155,7 @@ int run(int argc, char **argv, int stdin_fd, int stdout_fd) {
             
             char error[OUTPUT_MAX_LENGTH] = "";
             sprintf(error, "Error: Comando %s no encontrado", argv[0]);
-            write(stdout_fd, error, strlen(error));
+            write(STDERR_FILENO, error, strlen(error));
             return 1;
         }
     }
