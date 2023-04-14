@@ -17,6 +17,7 @@ int main() {
         gwd(workingDir);
 
         printf("\x1b[33mbetter-call-shell\x1b[0m:\x1b[32m%s \x1b[0m$ ",workingDir);
+        fflush(stdout);
 
         char user_input[INPUT_MAX_LENGTH] = "";
         fgets(user_input, INPUT_MAX_LENGTH, stdin);
@@ -26,6 +27,7 @@ int main() {
         }
         
         process_input(user_input, 1);
+        fflush(stdout);
     }
     
     return 0;

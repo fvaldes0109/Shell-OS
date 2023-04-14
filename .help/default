@@ -7,6 +7,7 @@ Funcionalidades:
     - spaces: (11) Cualquier cantidad de espacios (0.5 puntos)
     - history: (12) Historial de comandos (0.5 punts)
     - chain: (14) Operadores para encadenar comandos (0.5 puntos)
+    - ctrl+c (13) Posibilidad de dar Ctrl+C en el prompt (0.5 puntos)
     - help: (17) Imprimir una ayuda (1 punto)
 
 Comandos built-in:
@@ -16,4 +17,4 @@ Comandos built-in:
     - history: Muestra el historial de comandos
     - again <x>: Ejecuta el comando x del historial
 
-Total: 6.5 puntos
+Total: 7 puntos

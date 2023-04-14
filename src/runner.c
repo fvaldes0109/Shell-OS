@@ -5,6 +5,7 @@
 #include <sys/types.h>
 #include <fcntl.h>
 #include <sys/wait.h>
+#include <signal.h>
 
 #include "constants.h"
 #include "commands.h"
@@ -16,8 +17,24 @@ char workingDir[FOLDER_DEPTH_MAX];
 char *history_arr[HISTORY_MAX];
 int historyIndex = 0;
 
+// Running process status
+int child_running_fg = 0;
+int sent_sigint = 0;
+pid_t child_pid;
+
+void sigint_handler(int signal) {
+
+    if (child_running_fg == 0) {
+        exit(1);
+    }
+
+    if (sent_sigint == 0) sent_sigint++;
+    else kill(child_pid, SIGKILL);
+}
+
 void init() {
 
+    signal(SIGINT, sigint_handler);
     getcwd(workingDir, sizeof(workingDir));
     
     FILE *file = fopen(".history", "r");
@@ -40,6 +57,7 @@ void gwd(char buffer[]) {
 
 int execute(char *bin_path, char **argv, int stdin_fd, int stdout_fd) {
     
+    sent_sigint = 0;
     int fd[2];
     if(pipe(fd) == -1) {
         perror("pipe");
@@ -64,6 +82,14 @@ int execute(char *bin_path, char **argv, int stdin_fd, int stdout_fd) {
         perror("execvp");
         exit(1);
     } else {
+
+        child_pid = pid;  // almacenar el PID del proceso hijo
+        child_running_fg = 1;
+
+        // configurar el manejador de señal SIGINT
+        signal(SIGINT, sigint_handler);
+
+        child_running_fg = 1;
         // leer la salida del pipe y guardarla en el file descriptor dado
         close(fd[1]); // cerrar el extremo de escritura del pipe
         char buffer;
@@ -84,6 +110,10 @@ int execute(char *bin_path, char **argv, int stdin_fd, int stdout_fd) {
         // esperar a que el proceso hijo termine
         int status;
         waitpid(pid, &status, 0);
+        child_running_fg = 0;
+        signal(SIGINT, SIG_DFL);
+
+
         if(!WIFEXITED(status) || WEXITSTATUS(status) != 0) {
             fprintf(stderr, "El proceso hijo terminó de forma anormal\n");
             return 1;
