@@ -1,0 +1,2 @@
+
+Primeramente aplicamos un parseador a la instrucción para separarla en un arreglo de cadenas, y devolviendo un arreglo de enteros que sirven como flags para saber por cual operador es precedido cada comando. Luego, se ejecuta cada comando en secuencia tomando el exit status de cada uno y actuando en consecuencia de este y del flag actual.    

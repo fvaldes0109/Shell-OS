@@ -6,8 +6,8 @@ Funcionalidades:
     - multi-pipe: (9) Múltiples tuberías (1 punto)
     - spaces: (11) Cualquier cantidad de espacios (0.5 puntos)
     - history: (12) Historial de comandos (0.5 punts)
-    - chain: (14) Operadores para encadenar comandos (0.5 puntos)
     - ctrl+c (13) Posibilidad de dar Ctrl+C en el prompt (0.5 puntos)
+    - chain: (14) Operadores para encadenar comandos (0.5 puntos)
     - help: (17) Imprimir una ayuda (1 punto)
 
 Comandos built-in:
@@ -16,5 +16,7 @@ Comandos built-in:
     - help <keyword>: Muestra esta ayuda o la ayuda de una palabra clave
     - history: Muestra el historial de comandos
     - again <x>: Ejecuta el comando x del historial
+    - true: Retorna exit status 0
+    - false: Retorna exit status 1
 
 Total: 7 puntos

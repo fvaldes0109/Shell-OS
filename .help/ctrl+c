@@ -1,0 +1,2 @@
+
+Primeramente, capturamos cuando Ctrl+C es pulsado en la terminal. Si no se está ejecutando un proceso hijo en 1er plano, terminamos el shell. Si se está ejecutando un proceso, se le envía la señal SIGINT a este y se aumenta un contador. Si se ejecuta Ctrl+C y el contador fue modificado, se hace KILL al proceso hijo. En esta parte existe el problema de que al puslsar Ctrl+C por segunda vez, primero se está enviando SIGINT al proceso hijo, y acto seguido se le envía el KILL.

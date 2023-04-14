@@ -107,7 +107,6 @@ int help(char *keyword, char *rootDir, int stdout_fd) {
 
     char route[FOLDER_DEPTH_MAX] = "";
     sprintf(route, "%s/.help/%s", rootDir, keyword);
-    printf("Route: %s\n", route);
 
     FILE *file = fopen(route, "r");
     if (file == NULL) {
@@ -117,7 +116,7 @@ int help(char *keyword, char *rootDir, int stdout_fd) {
         return 1;
     }
 
-    char output[OUTPUT_MAX_LENGTH];
+    char output[OUTPUT_MAX_LENGTH] = "";
     char line[OUTPUT_MAX_LENGTH];
     while (fgets(line, OUTPUT_MAX_LENGTH, file) != NULL) {
         strcat(output, line);

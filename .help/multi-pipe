@@ -1,0 +1,2 @@
+
+Esto fue logrado gracias a un archivo temporal. Los comandos en el pipe se leen de uno en uno. Su salida se coloca en el archivo, y su entrada será la salida del comando anterior. Para este proceso es necesario llevar un 2do archivo temporal, pues de lo contrario un comando en medio de la cadena tendría los file descriptor de entrada y salida apuntando al mismo archivo, y esto puede generar errores. Al llegar al último comando, la salida de este se mostrará por la salida estándar.

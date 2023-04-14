@@ -1,0 +1,4 @@
+
+Para llevar rastro del historial, se mantiene un array de hasta 10 elementos. Cada vez que el usuario escribe una instrucción, esta es guardada en el array. Para garantizar persistencia al cerrar el shell, el historial siempre se guarda en un archivo .history en la raíz del proyecto con los datos del historiañ, y al iniciar el shell la información en este archivo se carga en el arreglo
+
+Para que el again ejecute un comando del historial, basta con buscar en el arreglo el comando al que se apunta y pasar la cadena a la función encargada del parseo y la ejecución. Luego, para almacenar el comando sustituido en el historial, recorremos el comando buscando cada ocurrencia de un again, tomamos el comando al que apunta en el historial, y lo sustituimos en el comando original.

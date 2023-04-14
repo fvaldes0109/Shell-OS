@@ -1,0 +1,2 @@
+
+Al separar los comandos por operadores, los espacios son irrelevantes, pues el parseador solo toma en cuenta los operadores que sean necesarios. En el caso de separar un comando de sus argumentos, cada comando es dividido en el vector argv usando los espacios como separadores. Si se encuentran más de un espacio de forma consecutiva, los sobrantes son ignorados. Además se llama a una función trim() con cada comando para eliminar espacios al inicio y al final.
